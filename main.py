@@ -41,5 +41,6 @@ class AtonCore:
             'blue': Player(notifiers[1]),
         }
 
+    def start(self):
         for player in self.players.values():
             player.draw_cards()

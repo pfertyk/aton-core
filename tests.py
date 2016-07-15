@@ -5,7 +5,7 @@ from main import AtonCore, Player
 
 
 class PlayerTestCase(unittest.TestCase):
-    def test_draw_cards(self):
+    def test_draw_cards_from_deck(self):
         player = Player()
         player.deck = [1, 2, 3, 4, 4, 3, 2, 1]
 
@@ -29,10 +29,14 @@ class PlayerTestCase(unittest.TestCase):
 class AtonCoreTestCase(unittest.TestCase):
     def test_sends_cards_to_users(self):
         notifiers = [MagicMock(), MagicMock()]
-        AtonCore(notifiers)
+        aton = AtonCore(notifiers)
+        aton.players['red'].deck = [1, 1, 3, 4]
+        aton.players['blue'].deck = [4, 2, 3, 4]
 
-        for notifier in notifiers:
-            notifier.assert_called()
+        aton.start()
+
+        notifiers[0].assert_called_with('hand 1 1 3 4')
+        notifiers[1].assert_called_with('hand 4 2 3 4')
 
 
 if __name__ == '__main__':
