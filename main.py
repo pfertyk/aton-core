@@ -2,7 +2,7 @@ from random import randint, shuffle
 
 
 class Player:
-    def __init__(self, notify):
+    def __init__(self, notifier=None):
         self.can_exchange_cards = True
         self.tokens_left = 29
         self.deck = [randint(1, 4) for _ in range(36)]
@@ -10,7 +10,11 @@ class Player:
         self.cartouches = []
         self.discard = []
         self.points = 0
-        self.notify = notify
+        self.notifier = notifier
+
+    def notify(self, message):
+        if self.notifier:
+            self.notifier(message)
 
     def draw_cards(self):
         self.discard.extend(self.hand)
