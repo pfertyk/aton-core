@@ -1,4 +1,5 @@
 from random import randint, shuffle
+import json
 
 
 class Player:
@@ -30,7 +31,11 @@ class Player:
                 shuffle(self.deck)
 
         assert len(self.hand) == 4
-        self.notify('hand ' + ' '.join(str(card) for card in self.hand))
+
+        message = {}
+        message['message'] = 'cards_drawn'
+        message['cards'] = self.hand
+        self.notify(json.dumps(message))
 
 
 class AtonCore:

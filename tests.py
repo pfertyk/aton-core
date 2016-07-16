@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
+import json
 
 from main import AtonCore, Player
 
@@ -30,13 +31,19 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_sends_cards_to_users(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        aton.players['red'].deck = [1, 1, 3, 4]
+        aton.players['red'].deck = [1, 1, 4, 3]
         aton.players['blue'].deck = [4, 2, 3, 4]
 
         aton.start()
 
-        notifiers[0].assert_called_with('hand 1 1 3 4')
-        notifiers[1].assert_called_with('hand 4 2 3 4')
+        notifiers[0].assert_called_with(json.dumps({
+            'message': 'cards_drawn',
+            'cards': [1, 1, 4, 3]
+            }))
+        notifiers[1].assert_called_with(json.dumps({
+            'message': 'cards_drawn',
+            'cards': [4, 2, 3, 4]
+            }))
 
 
 if __name__ == '__main__':
