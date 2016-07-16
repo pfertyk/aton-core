@@ -65,11 +65,13 @@ class AtonCore:
 
     def execute(self, command_json):
         command = json.loads(command_json)
+
+        message = command['message']
         player = self.players[command['player']]
         other_player = self.get_other_player(player)
 
         if self.state == State.Cartouches:
-            if command['message'] == 'exchange_cards':
+            if message == 'exchange_cards':
                 if player.can_exchange_cards:
                     player.can_exchange_cards = False
                     other_player.notify(json.dumps({
