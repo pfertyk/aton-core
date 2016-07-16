@@ -77,3 +77,12 @@ class AtonCore:
                     other_player.notify(json.dumps({
                         'message': 'opponent_exchanged_cards'}))
                     player.draw_cards()
+            if message == 'allocate_cards':
+                cards = command['cards']
+                if sorted(player.hand) == sorted(cards):
+                    if not player.cartouches:
+                        player.cartouches = cards
+                        player.hand = []
+                        other_player.notify(json.dumps({
+                            'message': 'opponent_allocated_cards'
+                        }))
