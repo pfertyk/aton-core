@@ -1,5 +1,9 @@
 from random import randint, shuffle
 import json
+from enum import Enum
+
+
+State = Enum('State', 'Initialized Started')
 
 
 class Player:
@@ -39,13 +43,25 @@ class Player:
 
 
 class AtonCore:
-    def __init__(self, notifiers):
+    def __init__(self, notifiers=[None, None]):
         self.finished = False
         self.players = {
             'red': Player(notifiers[0]),
             'blue': Player(notifiers[1]),
         }
+        self.state = State.Initialized
 
     def start(self):
         for player in self.players.values():
             player.draw_cards()
+
+        self.state = State.Started
+
+    def execute(self, command_json):
+        command = json.loads(command_json)
+
+        if command['message'] == 'exchange_cards':
+            player = self.players[command['player']]
+            if player.can_exchange_cards:
+                player.can_exchange_cards = False
+                player.draw_cards()

@@ -39,11 +39,52 @@ class AtonCoreTestCase(unittest.TestCase):
         notifiers[0].assert_called_with(json.dumps({
             'message': 'cards_drawn',
             'cards': [1, 1, 4, 3]
-            }))
+        }))
         notifiers[1].assert_called_with(json.dumps({
             'message': 'cards_drawn',
             'cards': [4, 2, 3, 4]
-            }))
+        }))
+
+    def test_player_can_exchange_cards_by_default(self):
+        aton = AtonCore()
+
+        for player in aton.players.values():
+            self.assertTrue(player.can_exchange_cards)
+
+    def test_exchanges_cards(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        red.deck = [1, 3, 2, 2, 4, 1, 3, 1, 2, 2, 4, 4]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'exchange_cards',
+        }))
+
+        self.assertFalse(red.can_exchange_cards)
+        self.assertEqual(red.discard, [1, 3, 2, 2])
+        self.assertEqual(red.hand, [4, 1, 3, 1])
+        self.assertEqual(red.deck, [2, 2, 4, 4])
+
+    def test_player_can_exchange_cards_only_once(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        red.deck = [1, 2, 3, 4, 4, 3, 1, 2, 1, 1, 1, 1]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'exchange_cards',
+        }))
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'exchange_cards',
+        }))
+
+        self.assertEqual(red.discard, [1, 2, 3, 4])
+        self.assertEqual(red.hand, [4, 3, 1, 2])
+        self.assertEqual(red.deck, [1, 1, 1, 1])
 
 
 if __name__ == '__main__':
