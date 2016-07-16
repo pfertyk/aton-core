@@ -3,7 +3,7 @@ import json
 from enum import Enum
 
 
-State = Enum('State', 'Initialized Started')
+State = Enum('State', 'Initialized Cartouches')
 
 
 class Player:
@@ -51,17 +51,27 @@ class AtonCore:
         }
         self.state = State.Initialized
 
+    def get_other_player(self, player):
+        if player == self.players['red']:
+            return self.players['blue']
+        else:
+            return self.players['red']
+
     def start(self):
         for player in self.players.values():
             player.draw_cards()
 
-        self.state = State.Started
+        self.state = State.Cartouches
 
     def execute(self, command_json):
         command = json.loads(command_json)
+        player = self.players[command['player']]
+        other_player = self.get_other_player(player)
 
-        if command['message'] == 'exchange_cards':
-            player = self.players[command['player']]
-            if player.can_exchange_cards:
-                player.can_exchange_cards = False
-                player.draw_cards()
+        if self.state == State.Cartouches:
+            if command['message'] == 'exchange_cards':
+                if player.can_exchange_cards:
+                    player.can_exchange_cards = False
+                    other_player.notify(json.dumps({
+                        'message': 'opponent_exchanged_cards'}))
+                    player.draw_cards()

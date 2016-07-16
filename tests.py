@@ -86,6 +86,20 @@ class AtonCoreTestCase(unittest.TestCase):
         self.assertEqual(red.hand, [4, 3, 1, 2])
         self.assertEqual(red.deck, [1, 1, 1, 1])
 
+    def test_notifies_when_opponent_exchanges_cards(self):
+        notifier = MagicMock()
+        aton = AtonCore([notifier, None])
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'exchange_cards',
+        }))
+
+        notifier.assert_called_with(json.dumps({
+            'message': 'opponent_exchanged_cards',
+        }))
+
 
 if __name__ == '__main__':
     unittest.main()
