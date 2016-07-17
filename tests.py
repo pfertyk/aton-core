@@ -254,6 +254,93 @@ class AtonCoreTestCase(unittest.TestCase):
             'cards': [1, 1, 1, 1]
         }))
 
+    def test_selects_starting_player_using_cartouche2(self):
+        notifiers = [MagicMock(), MagicMock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        blue = aton.players['blue']
+
+        red.deck = [1, 2, 1, 1]
+        blue.deck = [1, 1, 1, 1]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 2, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'starting_player_selected',
+                'player': 'red',
+            }))
+
+    def test_selects_starting_player_using_cartouche1(self):
+        notifiers = [MagicMock(), MagicMock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        blue = aton.players['blue']
+
+        red.deck = [1, 1, 1, 1]
+        blue.deck = [2, 1, 1, 1]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [2, 1, 1, 1]
+        }))
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'starting_player_selected',
+                'player': 'blue',
+            }))
+
+    def test_selects_starting_player_using_decks(self):
+        notifiers = [MagicMock(), MagicMock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        blue = aton.players['blue']
+
+        red.deck = [1, 1, 1, 1, 1, 1, 3]
+        blue.deck = [1, 1, 1, 1, 1, 2, 4]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'starting_player_selected',
+                'player': 'red',
+            }))
+
+        self.assertEqual(red.deck, [3])
+        self.assertEqual(red.discard, [1, 1])
+
+        self.assertEqual(blue.deck, [4])
+        self.assertEqual(blue.discard, [1, 2])
+
 
 if __name__ == '__main__':
     unittest.main()
