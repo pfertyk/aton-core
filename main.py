@@ -69,10 +69,17 @@ class AtonCore:
         if red.cartouches[0] != blue.cartouches[0]:
             cartouche_difference = abs(red.cartouches[0] - blue.cartouches[0])
             if red.cartouches[0] > blue.cartouches[0]:
-                scoring_player = red
+                scoring_player = 'red'
             else:
-                scoring_player = blue
-            scoring_player.points += cartouche_difference * 2
+                scoring_player = 'blue'
+            points = cartouche_difference * 2
+            self.players[scoring_player].points += points
+            for player in self.players.values():
+                player.notify(json.dumps({
+                    'message': 'points_scored',
+                    'player': scoring_player,
+                    'points': points,
+                }))
 
     def execute(self, command_json):
         command = json.loads(command_json)

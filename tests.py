@@ -197,6 +197,38 @@ class AtonCoreTestCase(unittest.TestCase):
         self.assertEqual(red.points, 0)
         self.assertEqual(blue.points, 0)
 
+    def test_notifies_about_scoring_point_from_cartouche1(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        blue = aton.players['blue']
+        red.deck = [3, 1, 1, 1]
+        blue.deck = [1, 1, 1, 1]
+
+        aton.start()
+        red.notifier = MagicMock()
+        blue.notifier = MagicMock()
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [3, 1, 1, 1]
+        }))
+
+        red.notifier.assert_called_with(json.dumps({
+            'message': 'points_scored',
+            'player': 'red',
+            'points': 4,
+        }))
+        blue.notifier.assert_called_with(json.dumps({
+            'message': 'points_scored',
+            'player': 'red',
+            'points': 4,
+        }))
+
 
 if __name__ == '__main__':
     unittest.main()
