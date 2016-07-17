@@ -153,6 +153,50 @@ class AtonCoreTestCase(unittest.TestCase):
             'message': 'opponent_allocated_cards'
         }))
 
+    def test_scores_points_using_cartouche1(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        blue = aton.players['blue']
+        red.deck = [1, 2, 3, 4]
+        blue.deck = [4, 4, 4, 4]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [4, 4, 4, 4]
+        }))
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 2, 3, 4]
+        }))
+
+        self.assertEqual(red.points, 0)
+        self.assertEqual(blue.points, 6)
+
+    def test_no_scoring_if_both_cartouches1_are_equal(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        blue = aton.players['blue']
+        red.deck = [1, 1, 1, 1]
+        blue.deck = [1, 1, 1, 1]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+
+        self.assertEqual(red.points, 0)
+        self.assertEqual(blue.points, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
