@@ -278,7 +278,7 @@ class AtonCoreTestCase(unittest.TestCase):
         for notifier in notifiers:
             notifier.assert_called_with(json.dumps({
                 'message': 'starting_player_selected',
-                'player': 'red',
+                'player': 'blue',
             }))
 
     def test_selects_starting_player_using_cartouche1(self):
@@ -305,7 +305,7 @@ class AtonCoreTestCase(unittest.TestCase):
         for notifier in notifiers:
             notifier.assert_called_with(json.dumps({
                 'message': 'starting_player_selected',
-                'player': 'blue',
+                'player': 'red',
             }))
 
     def test_selects_starting_player_using_decks(self):
