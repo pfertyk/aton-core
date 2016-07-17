@@ -229,6 +229,31 @@ class AtonCoreTestCase(unittest.TestCase):
             'points': 4,
         }))
 
+    def test_no_notification_if_cartouches1_are_equal(self):
+        aton = AtonCore()
+        red = aton.players['red']
+        blue = aton.players['blue']
+
+        def notifier(message):
+            self.assertNotIn('points_scored', message)
+        red.notifier = notifier
+        blue.notifier = notifier
+
+        red.deck = [1, 1, 1, 1]
+        blue.deck = [1, 1, 1, 1]
+
+        aton.start()
+        aton.execute(json.dumps({
+            'player': 'blue',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+        aton.execute(json.dumps({
+            'player': 'red',
+            'message': 'allocate_cards',
+            'cards': [1, 1, 1, 1]
+        }))
+
 
 if __name__ == '__main__':
     unittest.main()
