@@ -63,6 +63,10 @@ class AtonCore:
 
         self.state = State.Allocating
 
+    def notify_players(self, message):
+        for player in self.players.values():
+            player.notify(message)
+
     def score_cartouche1(self):
         red = self.players['red']
         blue = self.players['blue']
@@ -74,12 +78,53 @@ class AtonCore:
                 scoring_player = 'blue'
             points = cartouche_difference * 2
             self.players[scoring_player].points += points
-            for player in self.players.values():
-                player.notify(json.dumps({
-                    'message': 'points_scored',
-                    'player': scoring_player,
-                    'points': points,
-                }))
+            self.notify_players(json.dumps({
+                'message': 'points_scored',
+                'player': scoring_player,
+                'points': points,
+            }))
+
+        self.determine_order_of_play()
+
+    def determine_order_of_play(self):
+        red = self.players['red']
+        blue = self.players['blue']
+        if red.cartouches[1] < blue.cartouches[1]:
+            starting_player = 'red'
+        elif blue.cartouches[1] < red.cartouches[1]:
+            starting_player = 'blue'
+        else:
+            if red.cartouches[0] < blue.cartouches[0]:
+                starting_player = 'red'
+            elif blue.cartouches[0] < red.cartouches[0]:
+                starting_player = 'blue'
+            else:
+                while True:
+                    if not red.deck:
+                        red.deck = red.discard
+                        red.discard = []
+                        shuffle(red.deck)
+                    red_card = red.deck[0]
+                    red.deck = red.deck[1:]
+                    red.discard.append(red_card)
+                    if not blue.deck:
+                        blue.deck = blue.discard
+                        blue.discard = []
+                        shuffle(blue.deck)
+                    blue_card = blue.deck[0]
+                    blue.deck = blue.deck[1:]
+                    blue.discard.append(blue_card)
+                    if red_card < blue_card:
+                        starting_player = 'red'
+                        break
+                    elif blue_card < red_card:
+                        starting_player = 'blue'
+                        break
+
+        self.notify_players(json.dumps({
+            'message': 'starting_player_selected',
+            'player': starting_player
+        }))
 
     def execute(self, command_json):
         command = json.loads(command_json)

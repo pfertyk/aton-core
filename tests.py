@@ -179,7 +179,7 @@ class AtonCoreTestCase(unittest.TestCase):
         aton = AtonCore()
         red = aton.players['red']
         blue = aton.players['blue']
-        red.deck = [1, 1, 1, 1]
+        red.deck = [1, 2, 1, 1]
         blue.deck = [1, 1, 1, 1]
 
         aton.start()
@@ -191,7 +191,7 @@ class AtonCoreTestCase(unittest.TestCase):
         aton.execute(json.dumps({
             'player': 'red',
             'message': 'allocate_cards',
-            'cards': [1, 1, 1, 1]
+            'cards': [1, 2, 1, 1]
         }))
 
         self.assertEqual(red.points, 0)
@@ -218,12 +218,12 @@ class AtonCoreTestCase(unittest.TestCase):
             'cards': [3, 1, 1, 1]
         }))
 
-        red.notifier.assert_called_with(json.dumps({
+        red.notifier.assert_any_call(json.dumps({
             'message': 'points_scored',
             'player': 'red',
             'points': 4,
         }))
-        blue.notifier.assert_called_with(json.dumps({
+        blue.notifier.assert_any_call(json.dumps({
             'message': 'points_scored',
             'player': 'red',
             'points': 4,
@@ -239,7 +239,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.notifier = notifier
         blue.notifier = notifier
 
-        red.deck = [1, 1, 1, 1]
+        red.deck = [1, 2, 1, 1]
         blue.deck = [1, 1, 1, 1]
 
         aton.start()
@@ -251,7 +251,7 @@ class AtonCoreTestCase(unittest.TestCase):
         aton.execute(json.dumps({
             'player': 'red',
             'message': 'allocate_cards',
-            'cards': [1, 1, 1, 1]
+            'cards': [1, 2, 1, 1]
         }))
 
     def test_selects_starting_player_using_cartouche2(self):
