@@ -3,7 +3,7 @@ import json
 from enum import Enum
 
 
-State = Enum('State', 'Initialized Allocating')
+State = Enum('State', 'Initialized Allocating Scoring OrderOfPlay')
 
 
 class Player:
@@ -58,10 +58,17 @@ class AtonCore:
             return self.players['red']
 
     def start(self):
-        for player in self.players.values():
-            player.draw_cards()
+        self.switch_to_state(State.Allocating)
 
-        self.state = State.Allocating
+    def switch_to_state(self, state):
+        self.state = state
+        if state == State.Allocating:
+            for player in self.players.values():
+                player.draw_cards()
+        elif state == State.Scoring:
+            self.score_cartouche1()
+        elif state == State.OrderOfPlay:
+            self.determine_order_of_play()
 
     def notify_players(self, message):
         for player in self.players.values():
@@ -84,7 +91,7 @@ class AtonCore:
                 'points': points,
             }))
 
-        self.determine_order_of_play()
+        self.switch_to_state(State.OrderOfPlay)
 
     def determine_order_of_play(self):
         red = self.players['red']
@@ -151,4 +158,4 @@ class AtonCore:
                         }))
 
                         if other_player.cartouches:
-                            self.score_cartouche1()
+                            self.switch_to_state(State.Scoring)
