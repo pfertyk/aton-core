@@ -3,7 +3,12 @@ import json
 from enum import Enum
 
 
-State = Enum('State', 'Initialized Allocating Scoring OrderOfPlay')
+class State(Enum):
+    Initialized = 0
+    Allocating = 1
+    Scoring = 2
+    OrderOfPlay = 3
+    RemovingTokens = 4
 
 
 class Player:
@@ -49,7 +54,9 @@ class AtonCore:
             'red': Player(notifiers[0]),
             'blue': Player(notifiers[1]),
         }
-        self.state = State.Initialized
+        self.current_player = None
+
+        self.state = State.Allocating
 
     def get_other_player(self, player):
         if player == self.players['red']:
@@ -58,7 +65,7 @@ class AtonCore:
             return self.players['red']
 
     def start(self):
-        self.switch_to_state(State.Allocating)
+        self.switch_to_state(self.state)
 
     def switch_to_state(self, state):
         self.state = state
@@ -69,6 +76,8 @@ class AtonCore:
             self.score_cartouche1()
         elif state == State.OrderOfPlay:
             self.determine_order_of_play()
+        elif state == State.RemovingTokens:
+            pass
 
     def notify_players(self, message):
         for player in self.players.values():
@@ -132,6 +141,9 @@ class AtonCore:
             'message': 'starting_player_selected',
             'player': starting_player
         }))
+
+        self.current_player = self.players[starting_player]
+        self.switch_to_state(State.RemovingTokens)
 
     def execute(self, command_json):
         command = json.loads(command_json)
