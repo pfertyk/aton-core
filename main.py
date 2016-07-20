@@ -47,6 +47,14 @@ class Player:
         self.notify(json.dumps(message))
 
 
+class Temple:
+    def __init__(self):
+        self.tokens = [''] * 12
+
+    def count_player_tokens(self, player):
+        return len([token for token in self.tokens if player == token])
+
+
 class AtonCore:
     def __init__(self, notifiers=[None, None]):
         self.finished = False
@@ -54,6 +62,7 @@ class AtonCore:
             'red': Player(notifiers[0]),
             'blue': Player(notifiers[1]),
         }
+        self.temples = [Temple()] * 4
         self.current_player = None
 
         self.state = State.Allocating
@@ -77,7 +86,23 @@ class AtonCore:
         elif state == State.OrderOfPlay:
             self.determine_order_of_play()
         elif state == State.RemovingTokens:
-            pass
+            cartouches = self.players[self.current_player].cartouches
+            number_of_tokens = cartouches[1] - 2
+            max_available_temple = cartouches[2]
+            if number_of_tokens > 0:
+                opponent = 'red' if self.current_player == 'blue' else 'blue'
+                token_count = 0
+                for temple_index in range(max_available_temple):
+                    temple = self.temples[temple_index]
+                    token_count += temple.count_player_tokens(opponent)
+                if token_count > number_of_tokens:
+                    self.notify_players(json.dumps({
+                        'message': 'remove_tokens',
+                        'player': self.current_player,
+                        'token_owner': opponent,
+                        'number_of_tokens': number_of_tokens,
+                        'max_available_temple': max_available_temple,
+                    }))
 
     def notify_players(self, message):
         for player in self.players.values():
@@ -142,7 +167,7 @@ class AtonCore:
             'player': starting_player
         }))
 
-        self.current_player = self.players[starting_player]
+        self.current_player = starting_player
         self.switch_to_state(State.RemovingTokens)
 
     def execute(self, command_json):

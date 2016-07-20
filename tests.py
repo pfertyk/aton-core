@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 import json
 
-from main import AtonCore, Player
+from main import AtonCore, Player, State
 
 
 class PlayerTestCase(unittest.TestCase):
@@ -376,6 +376,26 @@ class AtonCoreTestCase(unittest.TestCase):
         self.assertEqual(blue.deck, [1])
         self.assertEqual(blue.discard, [1])
 
+    def test_orders_player_to_remove_opponents_tokens(self):
+        notifiers = [MagicMock(), MagicMock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        red.cartouches = [1, 4, 3, 4]
+        for i in range(4):
+            aton.temples[i].tokens[0] = 'blue'
+        aton.current_player = 'red'
+        aton.state = State.RemovingTokens
+
+        aton.start()
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'remove_tokens',
+                'player': 'red',
+                'token_owner': 'blue',
+                'number_of_tokens': 2,
+                'max_available_temple': 3,
+            }))
 
 if __name__ == '__main__':
     unittest.main()
