@@ -432,5 +432,29 @@ class AtonCoreTestCase(unittest.TestCase):
 
         aton.start()
 
+    def test_no_notification_when_no_opponents_tokens_available(self):
+            def notifier(message):
+                self.assertNotIn('remove_tokens', message)
+            notifiers = [notifier, notifier]
+            aton = AtonCore(notifiers)
+            red = aton.players['red']
+            red.cartouches = [1, 4, 3, 4]
+            aton.current_player = 'red'
+            aton.state = State.RemovingTokens
+
+            aton.start()
+
+    def test_no_notification_when_no_own_tokens_available(self):
+            def notifier(message):
+                self.assertNotIn('remove_tokens', message)
+            notifiers = [notifier, notifier]
+            aton = AtonCore(notifiers)
+            red = aton.players['red']
+            red.cartouches = [1, 1, 3, 4]
+            aton.current_player = 'red'
+            aton.state = State.RemovingTokens
+
+            aton.start()
+
 if __name__ == '__main__':
     unittest.main()
