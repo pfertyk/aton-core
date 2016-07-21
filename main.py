@@ -108,7 +108,8 @@ class AtonCore:
                 token_count = 0
                 for temple_index in range(max_available_temple):
                     temple = self.temples[temple_index]
-                    token_count += temple.count_player_tokens(self.current_player)
+                    token_count += temple.count_player_tokens(
+                        self.current_player)
                 if token_count > number_of_tokens:
                     self.notify_players(json.dumps({
                         'message': 'remove_tokens',
