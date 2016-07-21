@@ -418,5 +418,19 @@ class AtonCoreTestCase(unittest.TestCase):
                 'max_available_temple': 3,
             }))
 
+    def test_no_notification_when_no_tokens_should_be_removed(self):
+        def notifier(message):
+            self.assertNotIn('remove_tokens', message)
+        notifiers = [notifier, notifier]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        red.cartouches = [1, 2, 3, 4]
+        for i in range(4):
+            aton.temples[i].tokens[0] = 'red'
+        aton.current_player = 'red'
+        aton.state = State.RemovingTokens
+
+        aton.start()
+
 if __name__ == '__main__':
     unittest.main()
