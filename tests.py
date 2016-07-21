@@ -276,7 +276,7 @@ class AtonCoreTestCase(unittest.TestCase):
         }))
 
         for notifier in notifiers:
-            notifier.assert_called_with(json.dumps({
+            notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'blue',
             }))
@@ -303,7 +303,7 @@ class AtonCoreTestCase(unittest.TestCase):
         }))
 
         for notifier in notifiers:
-            notifier.assert_called_with(json.dumps({
+            notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'red',
             }))
@@ -330,7 +330,7 @@ class AtonCoreTestCase(unittest.TestCase):
         }))
 
         for notifier in notifiers:
-            notifier.assert_called_with(json.dumps({
+            notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'red',
             }))
@@ -365,7 +365,7 @@ class AtonCoreTestCase(unittest.TestCase):
         }))
 
         for notifier in notifiers:
-            notifier.assert_called_with(json.dumps({
+            notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'blue',
             }))
@@ -394,6 +394,27 @@ class AtonCoreTestCase(unittest.TestCase):
                 'player': 'red',
                 'token_owner': 'blue',
                 'number_of_tokens': 2,
+                'max_available_temple': 3,
+            }))
+
+    def test_orders_player_to_remove_own_tokens(self):
+        notifiers = [MagicMock(), MagicMock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        red.cartouches = [1, 1, 3, 4]
+        for i in range(4):
+            aton.temples[i].tokens[0] = 'red'
+        aton.current_player = 'red'
+        aton.state = State.RemovingTokens
+
+        aton.start()
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'remove_tokens',
+                'player': 'red',
+                'token_owner': 'red',
+                'number_of_tokens': 1,
                 'max_available_temple': 3,
             }))
 

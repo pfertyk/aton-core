@@ -103,6 +103,14 @@ class AtonCore:
                         'number_of_tokens': number_of_tokens,
                         'max_available_temple': max_available_temple,
                     }))
+            elif number_of_tokens < 0:
+                self.notify_players(json.dumps({
+                    'message': 'remove_tokens',
+                    'player': self.current_player,
+                    'token_owner': self.current_player,
+                    'number_of_tokens': abs(number_of_tokens),
+                    'max_available_temple': max_available_temple,
+                }))
 
     def notify_players(self, message):
         for player in self.players.values():
