@@ -62,7 +62,9 @@ class AtonCore:
             'red': Player(notifiers[0]),
             'blue': Player(notifiers[1]),
         }
-        self.temples = [Temple()] * 4
+        self.temples = []
+        for _ in range(4):
+            self.temples.append(Temple())
         self.current_player = None
 
         self.state = State.Allocating
