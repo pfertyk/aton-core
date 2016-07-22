@@ -98,37 +98,15 @@ class AtonCore:
             cartouches = self.players[self.current_player].cartouches
             number_of_tokens = cartouches[1] - 2
             max_available_temple = cartouches[2]
-            if number_of_tokens > 0:
-                opponent = 'red' if self.current_player == 'blue' else 'blue'
-                token_owner = opponent
-                tokens = [[], [], [], []]
-                token_count = 0
-                for temple_index in range(max_available_temple):
-                    temple = self.temples[temple_index]
-                    token_count += temple.count_player_tokens(token_owner)
-                    tokens[temple_index] = temple.get_player_tokens(
-                        token_owner)
-                if token_count > number_of_tokens:
-                    self.notify_players(json.dumps({
-                        'message': 'remove_tokens',
-                        'player': self.current_player,
-                        'token_owner': token_owner,
-                        'number_of_tokens': number_of_tokens,
-                        'max_available_temple': max_available_temple,
-                    }))
+            if number_of_tokens != 0:
+                if number_of_tokens > 0:
+                    if self.current_player == 'red':
+                        token_owner = 'blue'
+                    else:
+                        token_owner = 'red'
                 else:
-                    for temple_index, token_indices in enumerate(tokens):
-                        for token_index in token_indices:
-                            self.temples[temple_index].tokens[token_index] = ''
-                    self.notify_players(json.dumps({
-                        'message': 'tokens_removed',
-                        'removing_player': self.current_player,
-                        'token_owner': token_owner,
-                        'removed_tokens': tokens,
-                    }))
-            elif number_of_tokens < 0:
-                number_of_tokens = -number_of_tokens
-                token_owner = self.current_player
+                    number_of_tokens = -number_of_tokens
+                    token_owner = self.current_player
                 tokens = [[], [], [], []]
                 token_count = 0
                 for temple_index in range(max_available_temple):
