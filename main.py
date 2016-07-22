@@ -93,10 +93,14 @@ class AtonCore:
             max_available_temple = cartouches[2]
             if number_of_tokens > 0:
                 opponent = 'red' if self.current_player == 'blue' else 'blue'
+                tokens = [[], [], [], []]
                 token_count = 0
                 for temple_index in range(max_available_temple):
                     temple = self.temples[temple_index]
                     token_count += temple.count_player_tokens(opponent)
+                    for i, token in enumerate(temple.tokens):
+                        if token == opponent:
+                            tokens[temple_index].append(i)
                 if token_count > number_of_tokens:
                     self.notify_players(json.dumps({
                         'message': 'remove_tokens',
@@ -104,6 +108,13 @@ class AtonCore:
                         'token_owner': opponent,
                         'number_of_tokens': number_of_tokens,
                         'max_available_temple': max_available_temple,
+                    }))
+                else:
+                    self.notify_players(json.dumps({
+                        'message': 'tokens_removed',
+                        'removing_player': self.current_player,
+                        'token_owner': opponent,
+                        'removed_tokens': tokens,
                     }))
             elif number_of_tokens < 0:
                 number_of_tokens = -number_of_tokens
