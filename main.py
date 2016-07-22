@@ -54,6 +54,13 @@ class Temple:
     def count_player_tokens(self, player):
         return len([token for token in self.tokens if player == token])
 
+    def get_player_tokens(self, player):
+        tokens = []
+        for i, token in enumerate(self.tokens):
+            if token == player:
+                tokens.append(i)
+        return tokens
+
 
 class AtonCore:
     def __init__(self, notifiers=[None, None]):
@@ -93,19 +100,19 @@ class AtonCore:
             max_available_temple = cartouches[2]
             if number_of_tokens > 0:
                 opponent = 'red' if self.current_player == 'blue' else 'blue'
+                token_owner = opponent
                 tokens = [[], [], [], []]
                 token_count = 0
                 for temple_index in range(max_available_temple):
                     temple = self.temples[temple_index]
-                    token_count += temple.count_player_tokens(opponent)
-                    for i, token in enumerate(temple.tokens):
-                        if token == opponent:
-                            tokens[temple_index].append(i)
+                    token_count += temple.count_player_tokens(token_owner)
+                    tokens[temple_index] = temple.get_player_tokens(
+                        token_owner)
                 if token_count > number_of_tokens:
                     self.notify_players(json.dumps({
                         'message': 'remove_tokens',
                         'player': self.current_player,
-                        'token_owner': opponent,
+                        'token_owner': token_owner,
                         'number_of_tokens': number_of_tokens,
                         'max_available_temple': max_available_temple,
                     }))
@@ -113,23 +120,33 @@ class AtonCore:
                     self.notify_players(json.dumps({
                         'message': 'tokens_removed',
                         'removing_player': self.current_player,
-                        'token_owner': opponent,
+                        'token_owner': token_owner,
                         'removed_tokens': tokens,
                     }))
             elif number_of_tokens < 0:
                 number_of_tokens = -number_of_tokens
+                token_owner = self.current_player
+                tokens = [[], [], [], []]
                 token_count = 0
                 for temple_index in range(max_available_temple):
                     temple = self.temples[temple_index]
-                    token_count += temple.count_player_tokens(
-                        self.current_player)
+                    token_count += temple.count_player_tokens(token_owner)
+                    tokens[temple_index] = temple.get_player_tokens(
+                        token_owner)
                 if token_count > number_of_tokens:
                     self.notify_players(json.dumps({
                         'message': 'remove_tokens',
                         'player': self.current_player,
-                        'token_owner': self.current_player,
+                        'token_owner': token_owner,
                         'number_of_tokens': number_of_tokens,
                         'max_available_temple': max_available_temple,
+                    }))
+                else:
+                    self.notify_players(json.dumps({
+                        'message': 'tokens_removed',
+                        'removing_player': self.current_player,
+                        'token_owner': token_owner,
+                        'removed_tokens': tokens,
                     }))
 
     def notify_players(self, message):
