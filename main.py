@@ -117,6 +117,9 @@ class AtonCore:
                         'max_available_temple': max_available_temple,
                     }))
                 else:
+                    for temple_index, token_indices in enumerate(tokens):
+                        for token_index in token_indices:
+                            self.temples[temple_index].tokens[token_index] = ''
                     self.notify_players(json.dumps({
                         'message': 'tokens_removed',
                         'removing_player': self.current_player,
@@ -142,6 +145,9 @@ class AtonCore:
                         'max_available_temple': max_available_temple,
                     }))
                 else:
+                    for temple_index, token_indices in enumerate(tokens):
+                        for token_index in token_indices:
+                            self.temples[temple_index].tokens[token_index] = ''
                     self.notify_players(json.dumps({
                         'message': 'tokens_removed',
                         'removing_player': self.current_player,
