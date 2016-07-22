@@ -508,6 +508,32 @@ class AtonCoreTestCase(unittest.TestCase):
 
         for temple in aton.temples:
             for token in temple.tokens:
+                self.assertNotEqual(token, 'blue')
+
+    def test_automatically_remove_own_tokens_when_possible(self):
+        notifiers = [Mock(), Mock()]
+        aton = AtonCore(notifiers)
+        red = aton.players['red']
+        red.cartouches = [1, 1, 1, 4]
+        for i in range(2):
+            aton.temples[i].tokens[5] = 'red'
+        aton.current_player = 'red'
+        aton.state = State.RemovingTokens
+
+        aton.start()
+
+        for notifier in notifiers:
+            notifier.assert_called_with(json.dumps({
+                'message': 'tokens_removed',
+                'removing_player': 'red',
+                'token_owner': 'red',
+                'removed_tokens': [
+                    [5], [], [], []
+                ]
+            }))
+
+        for temple in aton.temples:
+            for token in temple.tokens:
                 self.assertNotEqual(token, 'red')
 
 if __name__ == '__main__':
