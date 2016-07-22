@@ -46,6 +46,16 @@ class Player:
         message['cards'] = self.hand
         self.notify(json.dumps(message))
 
+    def draw_card_and_discard_it(self):
+        if not self.deck:
+            self.deck = self.discard
+            self.discard = []
+            shuffle(self.deck)
+        card = self.deck[0]
+        self.deck = self.deck[1:]
+        self.discard.append(card)
+        return card
+
 
 class Temple:
     def __init__(self):
@@ -170,20 +180,8 @@ class AtonCore:
                 starting_player = 'blue'
             else:
                 while True:
-                    if not red.deck:
-                        red.deck = red.discard
-                        red.discard = []
-                        shuffle(red.deck)
-                    red_card = red.deck[0]
-                    red.deck = red.deck[1:]
-                    red.discard.append(red_card)
-                    if not blue.deck:
-                        blue.deck = blue.discard
-                        blue.discard = []
-                        shuffle(blue.deck)
-                    blue_card = blue.deck[0]
-                    blue.deck = blue.deck[1:]
-                    blue.discard.append(blue_card)
+                    red_card = red.draw_card_and_discard_it()
+                    blue_card = blue.draw_card_and_discard_it()
                     if red_card < blue_card:
                         starting_player = 'red'
                         break
