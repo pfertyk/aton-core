@@ -31,8 +31,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_sends_cards_to_users(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        aton.players['red'].deck = [1, 1, 4, 3]
-        aton.players['blue'].deck = [4, 2, 3, 4]
+        aton.red.deck = [1, 1, 4, 3]
+        aton.blue.deck = [4, 2, 3, 4]
 
         aton.start()
 
@@ -53,7 +53,7 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_exchanges_cards(self):
         aton = AtonCore()
-        red = aton.players['red']
+        red = aton.red
         red.deck = [1, 3, 2, 2, 4, 1, 3, 1, 2, 2, 4, 4]
 
         aton.start()
@@ -69,7 +69,7 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_player_can_exchange_cards_only_once(self):
         aton = AtonCore()
-        red = aton.players['red']
+        red = aton.red
         red.deck = [1, 2, 3, 4, 4, 3, 1, 2, 1, 1, 1, 1]
 
         aton.start()
@@ -108,7 +108,7 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_allocates_cards(self):
         aton = AtonCore()
-        red = aton.players['red']
+        red = aton.red
         red.deck = [1, 2, 3, 4]
 
         aton.start()
@@ -123,7 +123,7 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_validates_allocated_cards(self):
         aton = AtonCore()
-        red = aton.players['red']
+        red = aton.red
         red.deck = [1, 2, 3, 4]
 
         aton.start()
@@ -139,10 +139,10 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_notifies_when_opponent_allocates_cards(self):
         notifier = MagicMock()
         aton = AtonCore()
-        aton.players['blue'].deck = [1, 2, 3, 4]
+        aton.blue.deck = [1, 2, 3, 4]
 
         aton.start()
-        aton.players['red'].notifier = notifier
+        aton.red.notifier = notifier
         aton.execute(json.dumps({
             'player': 'blue',
             'message': 'allocate_cards',
@@ -155,8 +155,8 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_scores_points_using_cartouche1(self):
         aton = AtonCore()
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
         red.deck = [1, 2, 3, 4]
         blue.deck = [4, 4, 4, 4]
 
@@ -177,8 +177,8 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_no_scoring_if_both_cartouches1_are_equal(self):
         aton = AtonCore()
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
         red.deck = [1, 2, 1, 1]
         blue.deck = [1, 1, 1, 1]
 
@@ -199,8 +199,8 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_notifies_about_scoring_point_from_cartouche1(self):
         aton = AtonCore()
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
         red.deck = [3, 1, 1, 1]
         blue.deck = [1, 1, 1, 1]
 
@@ -231,8 +231,8 @@ class AtonCoreTestCase(unittest.TestCase):
 
     def test_no_notification_if_cartouches1_are_equal(self):
         aton = AtonCore()
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
 
         def notifier(message):
             self.assertNotIn('points_scored', message)
@@ -257,8 +257,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_selects_starting_player_using_cartouche2(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
 
         red.deck = [1, 2, 1, 1]
         blue.deck = [1, 1, 1, 1]
@@ -288,8 +288,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_selects_starting_player_using_cartouche1(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
 
         red.deck = [1, 1, 1, 1]
         blue.deck = [2, 1, 1, 1]
@@ -319,8 +319,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_selects_starting_player_using_decks(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
 
         red.deck = [1, 1, 1, 1, 1, 1, 3]
         blue.deck = [1, 1, 1, 1, 1, 2, 4]
@@ -357,8 +357,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_selects_starting_player_using_shuffled_discards(self, mock):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
-        blue = aton.players['blue']
+        red = aton.red
+        blue = aton.blue
 
         red.deck = [2]
         red.cartouches = [1, 1, 1, 1]
@@ -390,7 +390,7 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_orders_player_to_remove_opponents_tokens(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 4, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'blue'
@@ -411,7 +411,7 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_orders_player_to_remove_own_tokens(self):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 1, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'red'
@@ -434,7 +434,7 @@ class AtonCoreTestCase(unittest.TestCase):
             self.assertNotIn('remove_tokens', message)
         notifiers = [notifier, notifier]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 2, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'red'
@@ -448,7 +448,7 @@ class AtonCoreTestCase(unittest.TestCase):
             self.assertNotIn('remove_tokens', message)
         notifiers = [notifier, notifier]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 4, 3, 4]
         aton.current_player = 'red'
         aton.state = State.RemovingTokens
@@ -460,7 +460,7 @@ class AtonCoreTestCase(unittest.TestCase):
             self.assertNotIn('remove_tokens', message)
         notifiers = [notifier, notifier]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 1, 3, 4]
         aton.current_player = 'red'
         aton.state = State.RemovingTokens
@@ -472,7 +472,7 @@ class AtonCoreTestCase(unittest.TestCase):
             self.assertNotIn('remove_tokens', message)
         notifiers = [notifier, notifier]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 4, 3, 4]
         for i in range(4):
             aton.temples[3].tokens[i] = 'blue'
@@ -486,7 +486,7 @@ class AtonCoreTestCase(unittest.TestCase):
             self.assertNotIn('remove_tokens', message)
         notifiers = [notifier, notifier]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 1, 3, 4]
         for i in range(4):
             aton.temples[3].tokens[i] = 'red'
@@ -498,7 +498,7 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_automatically_remove_opponents_tokens_when_possible(self):
         notifiers = [Mock(), Mock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 4, 4, 4]
         for i in range(2):
             aton.temples[i].tokens[i] = 'blue'
@@ -523,7 +523,7 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_automatically_remove_own_tokens_when_possible(self):
         notifiers = [Mock(), Mock()]
         aton = AtonCore(notifiers)
-        red = aton.players['red']
+        red = aton.red
         red.cartouches = [1, 1, 1, 4]
         for i in range(4):
             aton.temples[i].tokens[5] = 'red'
