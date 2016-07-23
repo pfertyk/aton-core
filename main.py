@@ -66,12 +66,12 @@ class Temple:
         self.tokens = [''] * 12
 
     def count_player_tokens(self, player):
-        return len([token for token in self.tokens if player == token])
+        return len([token for token in self.tokens if token == player.name])
 
     def get_player_tokens(self, player):
         tokens = []
         for i, token in enumerate(self.tokens):
-            if token == player:
+            if token == player.name:
                 tokens.append(i)
         return tokens
 
@@ -79,10 +79,8 @@ class Temple:
 class AtonCore:
     def __init__(self, notifiers=[None, None]):
         self.finished = False
-        self.players = {
-            'red': Player('red', notifiers[0]),
-            'blue': Player('blue', notifiers[1]),
-        }
+        self.red = Player('red', notifiers[0])
+        self.blue = Player('blue', notifiers[1])
         self.temples = []
         for _ in range(4):
             self.temples.append(Temple())
@@ -91,10 +89,16 @@ class AtonCore:
         self.state = State.Allocating
 
     def get_other_player(self, player):
-        if player == self.players['red']:
-            return self.players['blue']
+        if player is self.red:
+            return self.blue
         else:
-            return self.players['red']
+            return self.red
+
+    def get_player_by_name(self, player_name):
+        if player_name == 'red':
+            return self.red
+        else:
+            return self.blue
 
     def start(self):
         self.switch_to_state(self.state)
@@ -102,22 +106,22 @@ class AtonCore:
     def switch_to_state(self, state):
         self.state = state
         if state == State.Allocating:
-            for player in self.players.values():
+            for player in [self.red, self.blue]:
                 player.draw_cards()
         elif state == State.Scoring:
             self.score_cartouche1()
         elif state == State.OrderOfPlay:
             self.determine_order_of_play()
         elif state == State.RemovingTokens:
-            cartouches = self.players[self.current_player].cartouches
+            cartouches = self.current_player.cartouches
             number_of_tokens = cartouches[1] - 2
             max_available_temple = cartouches[2]
             if number_of_tokens != 0:
                 if number_of_tokens > 0:
-                    if self.current_player == 'red':
-                        token_owner = 'blue'
+                    if self.current_player is self.red:
+                        token_owner = self.blue
                     else:
-                        token_owner = 'red'
+                        token_owner = self.red
                 else:
                     number_of_tokens = -number_of_tokens
                     token_owner = self.current_player
@@ -131,8 +135,8 @@ class AtonCore:
                 if token_count > number_of_tokens:
                     self.notify_players(json.dumps({
                         'message': 'remove_tokens',
-                        'player': self.current_player,
-                        'token_owner': token_owner,
+                        'player': str(self.current_player),
+                        'token_owner': str(token_owner),
                         'number_of_tokens': number_of_tokens,
                         'max_available_temple': max_available_temple,
                     }))
@@ -142,48 +146,48 @@ class AtonCore:
                             self.temples[temple_index].tokens[token_index] = ''
                     self.notify_players(json.dumps({
                         'message': 'tokens_removed',
-                        'removing_player': self.current_player,
-                        'token_owner': token_owner,
+                        'removing_player': str(self.current_player),
+                        'token_owner': str(token_owner),
                         'removed_tokens': tokens,
                     }))
 
     def notify_players(self, message):
-        for player in self.players.values():
+        for player in [self.red, self.blue]:
             player.notify(message)
 
     def score_cartouche1(self):
-        red = self.players['red']
-        blue = self.players['blue']
+        red = self.red
+        blue = self.blue
         if red.cartouches[0] != blue.cartouches[0]:
             cartouche_difference = abs(red.cartouches[0] - blue.cartouches[0])
             if red.cartouches[0] > blue.cartouches[0]:
-                scoring_player = 'red'
+                scoring_player = red
             else:
-                scoring_player = 'blue'
+                scoring_player = blue
             points = cartouche_difference * 2
-            self.players[scoring_player].points += points
+            scoring_player.points += points
             self.notify_players(json.dumps({
                 'message': 'points_scored',
-                'player': scoring_player,
+                'player': str(scoring_player),
                 'points': points,
             }))
 
         self.switch_to_state(State.OrderOfPlay)
 
     def determine_order_of_play(self):
-        red = self.players['red']
-        blue = self.players['blue']
+        red = self.red
+        blue = self.blue
         red_cards = []
         blue_cards = []
         if red.cartouches[1] < blue.cartouches[1]:
-            starting_player = 'red'
+            starting_player = red
         elif blue.cartouches[1] < red.cartouches[1]:
-            starting_player = 'blue'
+            starting_player = blue
         else:
             if red.cartouches[0] < blue.cartouches[0]:
-                starting_player = 'red'
+                starting_player = red
             elif blue.cartouches[0] < red.cartouches[0]:
-                starting_player = 'blue'
+                starting_player = blue
             else:
                 while True:
                     red_card = red.draw_card_and_discard_it()
@@ -191,15 +195,15 @@ class AtonCore:
                     red_cards.append(red_card)
                     blue_cards.append(blue_card)
                     if red_card < blue_card:
-                        starting_player = 'red'
+                        starting_player = red
                         break
                     elif blue_card < red_card:
-                        starting_player = 'blue'
+                        starting_player = blue
                         break
 
         self.notify_players(json.dumps({
             'message': 'starting_player_selected',
-            'player': starting_player,
+            'player': str(starting_player),
             'cards_used': {
                 'red': red_cards,
                 'blue': blue_cards,
@@ -213,7 +217,7 @@ class AtonCore:
         command = json.loads(command_json)
 
         message = command['message']
-        player = self.players[command['player']]
+        player = self.get_player_by_name(command['player'])
         other_player = self.get_other_player(player)
 
         if self.state == State.Allocating:
