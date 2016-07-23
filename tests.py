@@ -48,8 +48,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_player_can_exchange_cards_by_default(self):
         aton = AtonCore()
 
-        for player in aton.players.values():
-            self.assertTrue(player.can_exchange_cards)
+        self.assertTrue(aton.red.can_exchange_cards)
+        self.assertTrue(aton.blue.can_exchange_cards)
 
     def test_exchanges_cards(self):
         aton = AtonCore()
@@ -103,8 +103,8 @@ class AtonCoreTestCase(unittest.TestCase):
     def test_cartouches_are_empty_by_default(self):
         aton = AtonCore()
 
-        for player in aton.players.values():
-            self.assertEqual(player.cartouches, [])
+        self.assertEqual(aton.red.cartouches, [])
+        self.assertEqual(aton.blue.cartouches, [])
 
     def test_allocates_cards(self):
         aton = AtonCore()
@@ -394,7 +394,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 4, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'blue'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -415,7 +415,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 1, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'red'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -438,7 +438,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 2, 3, 4]
         for i in range(4):
             aton.temples[i].tokens[0] = 'red'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -450,7 +450,7 @@ class AtonCoreTestCase(unittest.TestCase):
         aton = AtonCore(notifiers)
         red = aton.red
         red.cartouches = [1, 4, 3, 4]
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -462,7 +462,7 @@ class AtonCoreTestCase(unittest.TestCase):
         aton = AtonCore(notifiers)
         red = aton.red
         red.cartouches = [1, 1, 3, 4]
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -476,7 +476,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 4, 3, 4]
         for i in range(4):
             aton.temples[3].tokens[i] = 'blue'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -490,7 +490,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 1, 3, 4]
         for i in range(4):
             aton.temples[3].tokens[i] = 'red'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -502,7 +502,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 4, 4, 4]
         for i in range(2):
             aton.temples[i].tokens[i] = 'blue'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
@@ -527,7 +527,7 @@ class AtonCoreTestCase(unittest.TestCase):
         red.cartouches = [1, 1, 1, 4]
         for i in range(4):
             aton.temples[i].tokens[5] = 'red'
-        aton.current_player = 'red'
+        aton.current_player = aton.red
         aton.state = State.RemovingTokens
 
         aton.start()
