@@ -169,6 +169,8 @@ class AtonCore:
     def determine_order_of_play(self):
         red = self.players['red']
         blue = self.players['blue']
+        red_cards = []
+        blue_cards = []
         if red.cartouches[1] < blue.cartouches[1]:
             starting_player = 'red'
         elif blue.cartouches[1] < red.cartouches[1]:
@@ -182,6 +184,8 @@ class AtonCore:
                 while True:
                     red_card = red.draw_card_and_discard_it()
                     blue_card = blue.draw_card_and_discard_it()
+                    red_cards.append(red_card)
+                    blue_cards.append(blue_card)
                     if red_card < blue_card:
                         starting_player = 'red'
                         break
@@ -191,7 +195,11 @@ class AtonCore:
 
         self.notify_players(json.dumps({
             'message': 'starting_player_selected',
-            'player': starting_player
+            'player': starting_player,
+            'cards_used': {
+                'red': red_cards,
+                'blue': blue_cards,
+            }
         }))
 
         self.current_player = starting_player
