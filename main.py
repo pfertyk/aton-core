@@ -12,7 +12,8 @@ class State(Enum):
 
 
 class Player:
-    def __init__(self, notifier=None):
+    def __init__(self, name=None, notifier=None):
+        self.name = name
         self.can_exchange_cards = True
         self.tokens_left = 29
         self.deck = [randint(1, 4) for _ in range(36)]
@@ -56,6 +57,9 @@ class Player:
         self.discard.append(card)
         return card
 
+    def __str__(self):
+        return self.name
+
 
 class Temple:
     def __init__(self):
@@ -76,8 +80,8 @@ class AtonCore:
     def __init__(self, notifiers=[None, None]):
         self.finished = False
         self.players = {
-            'red': Player(notifiers[0]),
-            'blue': Player(notifiers[1]),
+            'red': Player('red', notifiers[0]),
+            'blue': Player('blue', notifiers[1]),
         }
         self.temples = []
         for _ in range(4):
