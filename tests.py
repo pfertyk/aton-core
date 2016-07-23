@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
 import json
 
 from main import AtonCore, Player, State
@@ -279,6 +279,10 @@ class AtonCoreTestCase(unittest.TestCase):
             notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'blue',
+                'cards_used': {
+                    'red': [],
+                    'blue': [],
+                }
             }))
 
     def test_selects_starting_player_using_cartouche1(self):
@@ -306,6 +310,10 @@ class AtonCoreTestCase(unittest.TestCase):
             notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'red',
+                'cards_used': {
+                    'red': [],
+                    'blue': [],
+                }
             }))
 
     def test_selects_starting_player_using_decks(self):
@@ -333,6 +341,10 @@ class AtonCoreTestCase(unittest.TestCase):
             notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'red',
+                'cards_used': {
+                    'red': [1, 1],
+                    'blue': [1, 2],
+                }
             }))
 
         self.assertEqual(red.deck, [3])
@@ -341,40 +353,39 @@ class AtonCoreTestCase(unittest.TestCase):
         self.assertEqual(blue.deck, [4])
         self.assertEqual(blue.discard, [1, 2])
 
-    def test_selects_starting_player_using_shuffled_discards(self):
+    @patch('main.shuffle')
+    def test_selects_starting_player_using_shuffled_discards(self, mock):
         notifiers = [MagicMock(), MagicMock()]
         aton = AtonCore(notifiers)
         red = aton.players['red']
         blue = aton.players['blue']
 
-        red.deck = [1, 1, 1, 1]
-        red.discard = [2, 2]
-        blue.deck = [1, 1, 1, 1]
-        blue.discard = [1, 1]
+        red.deck = [2]
+        red.cartouches = [1, 1, 1, 1]
+        red.discard = [1, 3]
+        blue.deck = [2]
+        blue.cartouches = [1, 1, 1, 1]
+        blue.discard = [1, 2]
+
+        aton.state = State.OrderOfPlay
 
         aton.start()
-        aton.execute(json.dumps({
-            'player': 'red',
-            'message': 'allocate_cards',
-            'cards': [1, 1, 1, 1]
-        }))
-        aton.execute(json.dumps({
-            'player': 'blue',
-            'message': 'allocate_cards',
-            'cards': [1, 1, 1, 1]
-        }))
 
         for notifier in notifiers:
             notifier.assert_any_call(json.dumps({
                 'message': 'starting_player_selected',
                 'player': 'blue',
+                'cards_used': {
+                    'red': [2, 1, 3],
+                    'blue': [2, 1, 2],
+                }
             }))
 
         self.assertEqual(red.deck, [2])
-        self.assertEqual(red.discard, [2])
+        self.assertEqual(red.discard, [1, 3])
 
-        self.assertEqual(blue.deck, [1])
-        self.assertEqual(blue.discard, [1])
+        self.assertEqual(blue.deck, [2])
+        self.assertEqual(blue.discard, [1, 2])
 
     def test_orders_player_to_remove_opponents_tokens(self):
         notifiers = [MagicMock(), MagicMock()]
