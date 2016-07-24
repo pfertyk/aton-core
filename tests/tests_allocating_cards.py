@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from main import AtonCore
 
 
-class AtonCoreTestCase(TestCase):
+class TestAllocatingCards(TestCase):
     def test_cartouches_are_empty_by_default(self):
         aton = AtonCore()
 
