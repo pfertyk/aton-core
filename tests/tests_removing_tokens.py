@@ -1,13 +1,13 @@
-import unittest
-from unittest.mock import MagicMock, Mock
 import json
+from unittest import TestCase
+from unittest.mock import Mock
 
 from main import AtonCore, State
 
 
-class AtonCoreTestCase(unittest.TestCase):
+class TestRemovingTokens(TestCase):
     def test_orders_player_to_remove_opponents_tokens(self):
-        notifiers = [MagicMock(), MagicMock()]
+        notifiers = [Mock(), Mock()]
         aton = AtonCore(notifiers)
         red = aton.red
         red.cartouches = [1, 4, 3, 4]
@@ -28,7 +28,7 @@ class AtonCoreTestCase(unittest.TestCase):
             }))
 
     def test_orders_player_to_remove_own_tokens(self):
-        notifiers = [MagicMock(), MagicMock()]
+        notifiers = [Mock(), Mock()]
         aton = AtonCore(notifiers)
         red = aton.red
         red.cartouches = [1, 1, 3, 4]
@@ -163,6 +163,3 @@ class AtonCoreTestCase(unittest.TestCase):
         for token in temple.tokens:
             self.assertNotEqual(token, 'red', 'Temple {}: {}'.format(
                 0, temple.tokens))
-
-if __name__ == '__main__':
-    unittest.main()
